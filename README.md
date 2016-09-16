@@ -1,6 +1,6 @@
 # tingbot-apps
 
-* FlowerPower.tingapp
+## FlowerPower.tingapp
 
 Create a **settings.json** with the following settings:
 ```
@@ -18,11 +18,11 @@ Get your access API
 * `client_id` `client_secret`
 	* [Sign up to API here](https://apiflowerpower.parrot.com/api_access/signup), and got by **email** your *Access ID* (`client_id`) and your *Access secret* (`client_secret`).
 
-* Info.tingapp
+## Info.tingapp
 
-* Ocean.tingapp
+## Ocean.tingapp
 
-* PhotoAlbum.tingapp
+## PhotoAlbum.tingapp
 
 Create a **settings.json** with the following settings:
 ```
@@ -32,7 +32,7 @@ Create a **settings.json** with the following settings:
 }
 ```
 
-* Pi-hole.tingapp
+## Pi-hole.tingapp
 
 Create a **settings.json** with the following settings:
 ```
@@ -43,11 +43,11 @@ Create a **settings.json** with the following settings:
 
 `IP` is Pi-hole server IP address.
 
-* PictureOfTheDay.tingapp
+## PictureOfTheDay.tingapp
 
-* QoQa.tingapp
+## QoQa.tingapp
 
-* TPG.tingapp
+## TPG.tingapp
 
 Create a **settings.json** with the following settings:
 ```
@@ -58,8 +58,8 @@ Create a **settings.json** with the following settings:
 
 `apiKey` [Sign up to API here](http://www.tpg.ch/fr/web/open-data/demande-de-cle)
 
-* Timer.tingapp
+## Timer.tingapp
 
-* Weather.tingapp
+## Weather.tingapp
 
-* WiFi.tingapp
+## WiFi.tingapp
