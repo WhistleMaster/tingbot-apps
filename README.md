@@ -1,24 +1,65 @@
 # tingbot-apps
 
-FlowerPower.tingapp
+* FlowerPower.tingapp
 
-Info.tingapp
+Create a **settings.json** with the following settings:
+```
+{
+    "username":"",
+    "password":"",
+    "client_id":".",
+    "client_secret":""
+}
+```
 
-Ocean.tingapp
+Get your access API
+* `username` `password`
+	* Make sure you have an account created by your smartphone. You should be see your garden: [myflowerpower.parrot.com](https://myflowerpower.parrot.com).
+* `client_id` `client_secret`
+	* [Sign up to API here](https://apiflowerpower.parrot.com/api_access/signup), and got by **email** your *Access ID* (`client_id`) and your *Access secret* (`client_secret`).
 
-PhotoAlbum.tingapp
+* Info.tingapp
 
-Pi-hole.tingapp
+* Ocean.tingapp
 
-PictureOfTheDay.tingapp
+* PhotoAlbum.tingapp
 
-QoQa.tingapp
+Create a **settings.json** with the following settings:
+```
+{
+    "foldersList": ["/home/pi/Pictures/"],
+    "extsList": ["jpg", "png"]
+}
+```
 
+* Pi-hole.tingapp
 
-TPG.tingapp
+Create a **settings.json** with the following settings:
+```
+{
+    "IP":""
+}
+```
 
-Timer.tingapp
+`IP` is Pi-hole server IP address.
 
-Weather.tingapp
+* PictureOfTheDay.tingapp
 
-WiFi.tingapp
+* QoQa.tingapp
+
+* TPG.tingapp
+
+Create a **settings.json** with the following settings:
+```
+{
+    "apiKey":""
+}
+```
+
+`apiKey` [Sign up to API here](http://www.tpg.ch/fr/web/open-data/demande-de-cle)
+
+* Timer.tingapp
+
+* Weather.tingapp
+
+* WiFi.tingapp
