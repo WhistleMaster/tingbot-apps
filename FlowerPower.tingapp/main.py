@@ -1,5 +1,5 @@
 # coding: utf-8
-# v1.0
+# v1.0.0
 
 import tingbot
 from tingbot import *
@@ -39,6 +39,7 @@ sensorInfoList = {
     1: {'infoName': 'Serial', 'infoData': 'sensor_serial'},
     2: {'infoName': 'Battery', 'infoData': 'battery_level'},
     3: {'infoName': 'Firmware', 'infoData': 'firmware_version'},
+    4: {'infoName': 'Last upload', 'infoData': 'last_upload_datetime_utc'},
 }
 
 plantList = {
@@ -235,22 +236,22 @@ def showSensor():
     row_y = 31
     sensor_serial = state['garden'][currentPlant]['sensor_serial']
 
-    for i in range(0,4):
+    for i in range(0,5):
 
         screen.rectangle(
             xy=(0,row_y),
             align='topleft',
-            size=(320,51),
+            size=(320,41), #51
             color=(83,185,182),
         )
         
         screen.text(
             sensorInfoList[i]['infoName'],
-            xy=(20,row_y+27),
+            xy=(20,row_y+23), #27
             align='left',
             color='white',
             font='font/PoplarStd.otf',
-            font_size=17,
+            font_size=18,
         )
         
         if i == 2:
@@ -260,7 +261,7 @@ def showSensor():
 
         screen.text(
             infoText,
-            xy=(300,row_y+27),
+            xy=(300,row_y+23), #27
             align='right',
             color='white',
             font='font/PoplarStd.otf',
@@ -269,7 +270,7 @@ def showSensor():
             max_lines=2
         )
 
-        row_y += 52
+        row_y += 42 #52
 
 def showPlant():
     screen.fill(color=(212,212,212))

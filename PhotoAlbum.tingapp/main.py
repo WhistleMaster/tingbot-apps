@@ -1,5 +1,5 @@
 # coding: utf-8
-# v1.0
+# v1.0.0
 
 import tingbot
 from tingbot import *
