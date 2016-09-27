@@ -20,7 +20,11 @@ Get your access API
 
 ## Info.tingapp
 
+No setup needed.
+
 ## Ocean.tingapp
+
+No setup needed.
 
 ## PhotoAlbum.tingapp
 
@@ -45,7 +49,11 @@ Create a **settings.json** with the following settings:
 
 ## PictureOfTheDay.tingapp
 
+No setup needed.
+
 ## QoQa.tingapp
+
+No setup needed.
 
 ## TPG.tingapp
 
@@ -60,6 +68,12 @@ Create a **settings.json** with the following settings:
 
 ## Timer.tingapp
 
+No setup needed.
+
 ## Weather.tingapp
 
+No setup needed.
+
 ## WiFi.tingapp
+
+No setup needed.
