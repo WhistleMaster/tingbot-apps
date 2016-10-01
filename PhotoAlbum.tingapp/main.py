@@ -1,5 +1,5 @@
 # coding: utf-8
-# v1.0.0
+# v1.0.1
 
 import tingbot
 from tingbot import *
@@ -28,12 +28,12 @@ state['running'] = True
 @touch(xy=(100,17), size=(20,32), align='center')
 def on_touch(xy, action):
     if action == 'down':
-        next_photo()
+        previous_photo()
             
 @touch(xy=(220,17), size=(20,32), align='center')
 def on_touch(xy, action):
     if action == 'down':
-        previous_photo()
+        next_photo()
     
 @touch(xy=(0,16), size=(45,31), align='left')
 def on_touch(xy, action):
@@ -224,18 +224,16 @@ def showMain():
 @every(seconds=1.0/30)     
 def loop():
     if 'photos' not in state:
-        screen.fill(color='white')
-        screen.image('img/logo.png', scale=0.6)
+        screen.fill(color='black')
         screen.text(
             'Loading...',
-            xy=(160, 200),
+            xy=(160, 225),
             font_size=12,
-            color='black',
+            color='white',
         )
         return
 
     if state['screen'] == 'main':
         showMain()
 
-# run the app
 tingbot.run()

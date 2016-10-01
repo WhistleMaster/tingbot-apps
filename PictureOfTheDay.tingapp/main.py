@@ -1,5 +1,5 @@
 # coding: utf-8
-# v1.0.0
+# v1.0.1
 
 import tingbot
 from tingbot import *
@@ -8,6 +8,8 @@ import urllib2, urllib
 from urlparse import urlparse
 from datetime import datetime
 import sys, os, re
+
+import hashlib
 
 state = {}
 
@@ -32,12 +34,12 @@ def truncate(string, max_chars=36):
 @touch(xy=(70,17), size=(20,32), align='center')
 def on_touch(xy, action):
     if action == 'down':
-        next_content()
+        previous_content() 
             
 @touch(xy=(250,17), size=(20,32), align='center')
 def on_touch(xy, action):
     if action == 'down':
-        previous_content()
+        next_content()
     
 @touch(xy=(0,16), size=(45,31), align='left')
 def on_touch(xy, action):
@@ -143,7 +145,9 @@ def refresh_image():
 def download_images():
     for photo in state['photos']:
         url = photo['image_url']
-        filename = '/tmp/int-' + os.path.basename(urlparse(url).path)
+        
+        sha = hashlib.sha1(url)
+        filename = '/tmp/' + sha.hexdigest()
 
         if not os.path.exists(filename):
             urllib.urlretrieve(url, filename)
@@ -221,7 +225,7 @@ def showMain():
         screen.text(
             truncate(photo['image_name'], 40),
             align='left',
-            xy=(5, 229),
+            xy=(5, 231),
             color='white',
             font_size=14,
             font='font/JohnstonITCStd-Light.ttf',
@@ -230,13 +234,12 @@ def showMain():
 @every(seconds=1.0/30)
 def loop():
     if 'photos' not in state:
-        screen.fill(color='white')
-        screen.image('img/logo.png')
+        screen.fill(color='black')
         screen.text(
             'Loading...',
-            xy=(160, 200),
+            xy=(160, 225),
             font_size=12,
-            color='black',
+            color='white',
         )
         return
     

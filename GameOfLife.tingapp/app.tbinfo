@@ -1,8 +1,8 @@
 {
-    "name": "Weather",
+    "name": "Game of Life",
     "author": "Whistle Master",
     "caption": "",
-    "version": "1.0.1",
+    "version": "1.0.0",
     "website": "https://github.com/WhistleMaster/tingbot-apps",
-    "background_color": "297ded"
+    "background_color": "6DFF2E"
 }

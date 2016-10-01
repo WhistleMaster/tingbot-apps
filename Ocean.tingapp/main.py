@@ -1,11 +1,11 @@
 # coding: utf-8
-# v1.0.0
+# v1.0.1
 
 import tingbot
 from tingbot import *
 import urllib, json
 import os, subprocess
-import zipfile, shutil
+import zipfile, shutil, hashlib
 from urlparse import urlparse
 
 state = {}
@@ -69,13 +69,23 @@ def refresh_store():
 
 def download_images():
     for app in state['apps']:
-        url = 'http://ocean.tingbot.com' + app['icon']
-        filename = '/tmp/int-' + os.path.basename(urlparse(url).path)
+        if not app['icon'].startswith('http'):
+            url = 'http://ocean.tingbot.com' + app['icon']
+        else:
+            url = app['icon']
 
+        sha = hashlib.sha1(url)
+        filename = '/tmp/' + sha.hexdigest()
+        
         if not os.path.exists(filename):
             urllib.urlretrieve(url, filename)
-
+            
         app['icon'] = Image.load_filename(filename)
+        
+        if app['icon'].size != (96, 96):
+            resized_icon = Image(size=(96, 96))
+            resized_icon.image(app['icon'], scale='shrinkToFit')
+            app['icon'] = resized_icon
 
 def download_app(app):
     url = app['zip_url']
@@ -111,8 +121,8 @@ def showMain():
         font='font/Minecraftia-Regular.ttf',
         font_size=12,  
     )
-    
-    screen.image(app['icon'], xy=(160,90), scale=0.5)
+
+    screen.image(app['icon'], xy=(160,85))
     
     screen.text(
         app['name'],
@@ -146,7 +156,7 @@ def showMain():
         font='font/JohnstonITCStd-Bold.ttf',
     )
 
-@every(seconds=1.0/30)    
+@every(seconds=1.0/30)
 def loop():
     if 'apps' not in state:
         screen.fill(color='white')
@@ -167,5 +177,5 @@ def loop():
 
     if state['screen'] == 'main':
         showMain()
-
+        
 tingbot.run()

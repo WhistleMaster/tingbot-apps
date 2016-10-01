@@ -1,5 +1,5 @@
 # coding: utf-8
-# v1.0.0
+# v1.0.1
 
 import tingbot
 from tingbot import *
@@ -7,6 +7,7 @@ import lib.feedparser
 from urlparse import urlparse
 import os
 import urllib
+import hashlib
 
 def truncate(string, max_chars=36):
     return (string[:max_chars-3] + '...') if len(string) > max_chars else string
@@ -83,7 +84,9 @@ def refresh_feed():
 def download_images():
     for post in state['posts']:
         url = post['image_url']
-        filename = '/tmp/int-' + os.path.basename(urlparse(url).path)
+        
+        sha = hashlib.sha1(url)
+        filename = '/tmp/' + sha.hexdigest()
 
         if not os.path.exists(filename):
             urllib.urlretrieve(url, filename)
@@ -170,5 +173,5 @@ def loop():
 
     if state['screen'] == 'main':
         showMain()
-
+        
 tingbot.run()

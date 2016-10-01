@@ -1,5 +1,5 @@
 # coding: utf-8
-# v1.0.0
+# v1.0.1
 
 import tingbot
 from tingbot import *
@@ -221,13 +221,13 @@ def loop():
         screen.fill(color='black')
         screen.text(
             'Loading...',
-            xy=(160, 220),
+            xy=(160, 225),
             font_size=12,
-            color='grey',
+            color='white',
         )
         return
     
     if state['screen'] == 'main':
         showMain()
-
+        
 tingbot.run()
