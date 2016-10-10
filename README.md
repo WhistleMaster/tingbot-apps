@@ -1,5 +1,9 @@
 # tingbot-apps
 
+## Dice.tingapp
+
+No setup needed.
+
 ## FlowerPower.tingapp
 
 Create a **settings.json** with the following settings:
@@ -7,7 +11,7 @@ Create a **settings.json** with the following settings:
 {
     "username":"",
     "password":"",
-    "client_id":".",
+    "client_id":"",
     "client_secret":""
 }
 ```
@@ -17,6 +21,10 @@ Get your access API
 	* Make sure you have an account created by your smartphone. You should be see your garden: [myflowerpower.parrot.com](https://myflowerpower.parrot.com).
 * `client_id` `client_secret`
 	* [Sign up to API here](https://apiflowerpower.parrot.com/api_access/signup), and got by **email** your *Access ID* (`client_id`) and your *Access secret* (`client_secret`).
+
+## GameOfLife.tingapp
+
+No setup needed.
 
 ## Info.tingapp
 
@@ -67,6 +75,10 @@ Create a **settings.json** with the following settings:
 `apiKey` [Sign up to API here](http://www.tpg.ch/fr/web/open-data/demande-de-cle)
 
 ## Timer.tingapp
+
+No setup needed.
+
+## TicTacToe.tingapp
 
 No setup needed.
 
