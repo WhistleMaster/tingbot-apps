@@ -1,5 +1,5 @@
 # coding: utf-8
-# v1.0.0
+# v1.0.1
 
 import tingbot
 from tingbot import *
@@ -30,15 +30,15 @@ def on_left():
 
 @midleft_button.press
 def on_midleft():
-    lap_reset()
+    previous_screen()
 
 @midright_button.press
 def on_midright():
-    previous_screen()
+    next_screen()
     
 @right_button.press
 def on_right():
-    next_screen()
+    lap_reset()
     
 @touch(xy=(100,17), size=(20,32), align='center')
 def on_touch(xy, action):

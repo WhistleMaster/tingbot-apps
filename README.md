@@ -4,6 +4,10 @@
 
 No setup needed.
 
+## EventsViewer.tingapp
+
+No setup needed.
+
 ## FlowerPower.tingapp
 
 Create a **settings.json** with the following settings:

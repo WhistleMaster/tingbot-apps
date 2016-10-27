@@ -1,8 +1,8 @@
 {
-    "name": "Timer",
+    "name": "Events Viewer",
     "author": "Whistle Master",
     "caption": "",
-    "version": "1.0.1",
+    "version": "1.0.0",
     "website": "https://github.com/WhistleMaster/tingbot-apps",
-    "background_color": "00a8ec"
+    "background_color": "2d98f5"
 }
