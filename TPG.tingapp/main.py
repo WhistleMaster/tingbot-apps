@@ -1,5 +1,5 @@
 # coding: utf-8
-# v1.0.0
+# v1.1.0
 
 import tingbot
 from tingbot import *
@@ -42,17 +42,21 @@ def chunks(s, n):
     for start in range(0, len(s), n):
         yield s[start:start+n]
 
+def hex_to_rgb(value):
+    lv = len(value)
+    return tuple(int(value[i:i + lv // 3], 16) for i in range(0, lv, lv // 3))
+    
 @left_button.press
 def on_left():
-    previous_page()
+    previous_screen()
 
 @midleft_button.press
 def on_midleft():
-    next_page()
+    previous_page()
 
 @midright_button.press
 def on_midright():
-    previous_screen()
+    next_page()
 
 @right_button.press
 def on_right():
@@ -141,6 +145,15 @@ def refreshDepartures():
     response = urllib.urlopen(reqUrl)
 
     state['departures'] = json.loads(response.read())
+    
+def getLineColor(lineNum):
+    reqUrl = baseUrl + "GetLinesColors.json" + "?key=%s" % apiKey
+    response = urllib.urlopen(reqUrl)
+
+    data = json.loads(response.read())
+    
+    return [item for item in data["colors"] 
+                if item["lineCode"] == lineNum]
 
 def showDisruptions():
     global disruptionsList
@@ -340,12 +353,12 @@ def showDepartures():
         
         if 'disruptions' in departure:
             screen.image('img/warning.png', xy=(63,row_y+24))
-
+            
         screen.text(
             bus_number,
-            xy=(35,row_y+27),
-            align='center',
-            color='white',
+            xy=(10,row_y+27),
+            align='left',
+            color=hex_to_rgb(getLineColor(bus_number)[0]['background']),
             font='font/JohnstonITCStd-Bold.ttf',
             font_size=26,
         )
