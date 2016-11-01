@@ -24,7 +24,7 @@ Get your access API
 * `username` `password`
 	* Make sure you have an account created by your smartphone. You should be see your garden: [myflowerpower.parrot.com](https://myflowerpower.parrot.com).
 * `client_id` `client_secret`
-	* [Sign up to API here](https://apiflowerpower.parrot.com/api_access/signup), and got by **email** your *Access ID* (`client_id`) and your *Access secret* (`client_secret`).
+	* [Sign up to API here](https://api-flower-power-pot.parrot.com/api_access/signup), and got by **email** your *Access ID* (`client_id`) and your *Access secret* (`client_secret`).
 
 ## GameOfLife.tingapp
 

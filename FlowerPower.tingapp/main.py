@@ -1,5 +1,5 @@
 # coding: utf-8
-# v1.0.1
+# v1.1.0
 
 import tingbot
 from tingbot import *
@@ -36,10 +36,10 @@ colorCodeMapper = {
 
 sensorInfoList = {
     0: {'infoName': 'Name', 'infoData': 'nickname'},
-    1: {'infoName': 'Serial', 'infoData': 'sensor_serial'},
-    2: {'infoName': 'Battery', 'infoData': 'battery_level'},
+    1: {'infoName': 'Serial', 'infoData': 'system_id'},
+    2: {'infoName': 'Battery', 'infoData': 'current_value'},
     3: {'infoName': 'Firmware', 'infoData': 'firmware_version'},
-    4: {'infoName': 'Last upload', 'infoData': 'last_upload_datetime_utc'},
+    4: {'infoName': 'Last upload', 'infoData': 'last_sample_upload'},
 }
 
 plantList = {
@@ -54,26 +54,26 @@ def truncate(string, max_chars=36):
 
 @left_button.press
 def on_left():
-    previous_page()
+    plant_screen()  
 
 @midleft_button.press
 def on_midleft():
-    next_page()
+    previous_plant()
 
 @midright_button.press
 def on_midright():
-    previous_screen()
+    next_plant()
 
 @right_button.press
 def on_right():
-    next_screen()
+    sensor_screen()
 
-@touch(xy=(100,17), size=(20,32), align='center')
+@touch(xy=(75,15), size=(20,32), align='center')
 def on_touch(xy, action):
     if action == 'down':
         previous_page()
             
-@touch(xy=(220,17), size=(20,32), align='center')
+@touch(xy=(245,15), size=(20,32), align='center')
 def on_touch(xy, action):
     if action == 'down':
         next_page()
@@ -81,44 +81,38 @@ def on_touch(xy, action):
 @touch(xy=(0,17), size=(30,31), align='left')
 def on_touch(xy, action):
     if action == 'down':
-        if state['screen'] != 'plant':
-            state['screen'] = screenList[1]
-        else:
-            state['screen'] = screenList[0]
+        plant_screen()
             
 @touch(xy=(320,17), size=(30,31), align='right')
 def on_touch(xy, action):
     if action == 'down':
-        if state['screen'] != 'sensor':
-            state['screen'] = screenList[2]
-        else:
-            state['screen'] = screenList[0]
+        sensor_screen()
         
-def previous_page():
+def previous_plant():
     global currentPlant
     
-    currentPlant = (currentPlant - 1) % len(state['garden'])
+    currentPlant = (currentPlant - 1) % len(state['garden_configuration'])
     
-def next_page():
+def next_plant():
     global currentPlant
     
-    currentPlant = (currentPlant - 1) % len(state['garden'])
+    currentPlant = (currentPlant - 1) % len(state['garden_configuration'])
     
-def previous_screen():
-    global currentScreen
+def plant_screen():
+    if state['screen'] != 'plant':
+            state['screen'] = screenList[1]
+    else:
+        state['screen'] = screenList[0]
     
-    currentScreen = (currentScreen - 1) % len(screenList)
-    state['screen'] = screenList[currentScreen]
-    
-def next_screen():
-    global currentScreen
-    
-    currentScreen = (currentScreen + 1) % len(screenList)
-    state['screen'] = screenList[currentScreen]
+def sensor_screen():
+    if state['screen'] != 'sensor':
+            state['screen'] = screenList[2]
+    else:
+        state['screen'] = screenList[0]
 
 @tingbot.every(hours=1)
 def authenticate():
-    req = requests.get('https://apiflowerpower.parrot.com/user/v1/authenticate',
+    req = requests.get('https://api-flower-power-pot.parrot.com/user/v1/authenticate',
     
     data={'grant_type': 'password',
     'username': username,
@@ -138,17 +132,7 @@ def loadGarden():
     if 'access_token' not in state or not state['access_token']:
         return
     
-    req = requests.get('https://apiflowerpower.parrot.com/sensor_data/v4/garden_locations_status',
-    headers={'Authorization': 'Bearer ' + state['access_token']})
-    
-    response = req.json()
-    decoded = json.dumps(response)
-    deco = json.loads(decoded)
-    
-    tempGardenData1 = deco["locations"]
-    tempSensorData1 = deco["sensors"]
-    
-    req = requests.get('https://apiflowerpower.parrot.com/sensor_data/v3/sync',
+    req = requests.get('https://api-flower-power-pot.parrot.com/garden/v2/configuration',
     headers={'Authorization': 'Bearer ' + state['access_token']},
     params={'include_s3_urls': 1})
     
@@ -156,36 +140,21 @@ def loadGarden():
     decoded = json.dumps(response)
     deco = json.loads(decoded)
     
-    tempGardenData2 = deco["locations"]
-    tempSensorData2 = deco["sensors"]
+    state['garden_configuration'] = deco["locations"]
     
-    sensors = []
-    for i in range(0,len(deco["sensors"])):
-        sensor = tempSensorData1[i].copy()
-        sensor.update(tempSensorData2[i])
-        sensors.append(sensor)
+    req = requests.get('https://api-flower-power-pot.parrot.com/garden/v1/status',
+    headers={'Authorization': 'Bearer ' + state['access_token']})
     
-    state['sensors'] = sensors
-    
-    garden = []
-    for i in range(0,len(deco["locations"])):
-        plant = tempGardenData1[i].copy()
-        plant.update(tempGardenData2[i])
-        garden.append(plant)
-    
-    state['garden'] = garden
+    response = req.json()
+    decoded = json.dumps(response)
+    deco = json.loads(decoded)
+
+    state['garden_status'] = deco["locations"]
     
     downloadGardenImages()
 
-def getSensor():
-    for i in range(0,len(state['sensors'])):
-        if state['garden'][currentPlant]['sensor_serial'] == state['sensors'][i]['sensor_serial']:
-            return i
-
 def getSensorColor():
-    for i in range(0,len(state['sensors'])):
-        if state['garden'][currentPlant]['sensor_serial'] == state['sensors'][i]['sensor_serial']:
-            return colorCodeMapper[state['sensors'][i]['color']] or 'unknown'
+    return colorCodeMapper[state['garden_configuration'][currentPlant]['sensor']['color']] or 'unknown'
 
 def showSensor():
     screen.fill(color=(212,212,212))
@@ -208,13 +177,13 @@ def showSensor():
     
     screen.image(
         'img/left_white_arrow.png',
-        xy=(100, 15),
+        xy=(75, 15),
         align='center',
         scale=0.7
     )
     screen.image(
         'img/right_white_arrow.png',
-        xy=(220, 15),
+        xy=(245, 15),
         align='center',
         scale=0.7
     )
@@ -234,7 +203,7 @@ def showSensor():
     )
     
     row_y = 31
-    sensor_serial = state['garden'][currentPlant]['sensor_serial']
+    sensor_serial = state['garden_configuration'][currentPlant]['sensor']['sensor_identifier']
 
     for i in range(0,5):
 
@@ -255,9 +224,11 @@ def showSensor():
         )
         
         if i == 2:
-            infoText = str(state['sensors'][getSensor()][sensorInfoList[i]['infoData']]['level_percent']) + '%'
+            infoText = str(state['garden_status'][currentPlant]['battery']['gauge_values'][sensorInfoList[i]['infoData']]) + '%'
+        elif i == 4:
+            infoText = state['garden_status'][currentPlant][sensorInfoList[i]['infoData']]
         else:
-            infoText = state['sensors'][getSensor()][sensorInfoList[i]['infoData']]
+            infoText = state['garden_configuration'][currentPlant]['sensor'][sensorInfoList[i]['infoData']]
 
         screen.text(
             infoText,
@@ -283,7 +254,7 @@ def showPlant():
     )
 
     screen.text(
-        truncate(state['garden'][currentPlant]['plant_nickname'].upper(),13),
+        truncate(state['garden_configuration'][currentPlant]['plant_nickname'].upper(),13),
         xy=(160, 19),
         align='center',
         color='white',
@@ -293,13 +264,13 @@ def showPlant():
     
     screen.image(
         'img/left_white_arrow.png',
-        xy=(100, 15),
+        xy=(75, 15),
         align='center',
         scale=0.7
     )
     screen.image(
         'img/right_white_arrow.png',
-        xy=(220, 15),
+        xy=(245, 15),
         align='center',
         scale=0.7
     )
@@ -319,7 +290,6 @@ def showPlant():
     )
     
     row_y = 31
-    sensor_serial = state['garden'][currentPlant]['sensor_serial']
 
     for i in range(0,4):
 
@@ -330,7 +300,10 @@ def showPlant():
             color='white',
         )
         
-        instruction = state['garden'][currentPlant][plantList[i]['infoData']]['instruction_key']
+        if i == 0:
+            instruction = state['garden_status'][currentPlant]['watering'][plantList[i]['infoData']]['instruction_key']
+        else:
+            instruction = state['garden_status'][currentPlant][plantList[i]['infoData']]['instruction_key']
         
         if instruction is not None:
             if 'good' in instruction:
@@ -365,7 +338,10 @@ def showPlant():
             scale=1
         )
         
-        infoText = state['garden'][currentPlant][plantList[i]['infoData']]['gauge_values']['current_value']
+        if i == 0:
+            infoText = state['garden_status'][currentPlant]['watering'][plantList[i]['infoData']]['gauge_values']['current_value']
+        else:
+            infoText = state['garden_status'][currentPlant][plantList[i]['infoData']]['gauge_values']['current_value']
         
         if infoText is not None:
             if i == 0 :
@@ -393,7 +369,7 @@ def showPlant():
 def showGarden():
     screen.fill(color=(212,212,212))
     
-    image = state['garden'][currentPlant]['images'][0]['image']
+    image = state['garden_configuration'][currentPlant]['pictures'][0]['image']
     width_sf = 320.0 / image.size[0]
     height_sf = 240.0 / image.size[1]
     sf = max(width_sf, height_sf)
@@ -431,13 +407,13 @@ def showGarden():
     
     screen.image(
         'img/left_white_arrow.png',
-        xy=(100, 15),
+        xy=(75, 15),
         align='center',
         scale=0.7
     )
     screen.image(
         'img/right_white_arrow.png',
-        xy=(220, 15),
+        xy=(245, 15),
         align='center',
         scale=0.7
     )
@@ -463,7 +439,7 @@ def showGarden():
     )
         
     screen.text(
-        truncate(state['garden'][currentPlant]['plant_nickname'].upper(),13),
+        truncate(state['garden_configuration'][currentPlant]['plant_nickname'].upper(),13),
         align='left',
         xy=(5, 228),
         color='white',
@@ -471,7 +447,7 @@ def showGarden():
         font='font/PoplarStd.otf',
     )
     
-    if state['garden'][currentPlant]['in_pot']:
+    if state['garden_configuration'][currentPlant]['in_pot']:
         screen.image(
             'img/ico_pot.png',
             xy=(167, 225),
@@ -502,7 +478,7 @@ def showGarden():
             font='font/PoplarStd.otf',
         )
     
-    if state['garden'][currentPlant]['is_indoor']:
+    if state['garden_configuration'][currentPlant]['is_indoor']:
         screen.image(
             'img/ico_indoor.png',
             xy=(250, 225),
@@ -534,14 +510,14 @@ def showGarden():
         )
  
 def downloadGardenImages():
-    for i in range(0,len(state['garden'])):
-        url = state['garden'][i]['images'][0]['url']
+    for i in range(0,len(state['garden_configuration'])):
+        url = state['garden_configuration'][i]['pictures'][0]['url']
         filename = '/tmp/int-' + os.path.basename(urlparse(url).path)
 
         if not os.path.exists(filename):
             urllib.urlretrieve(url, filename)
 
-        state['garden'][i]['images'][0]['image'] = Image.load_filename(filename)
+        state['garden_configuration'][i]['pictures'][0]['image'] = Image.load_filename(filename)
 
 @every(seconds=1.0/30)      
 def loop():
@@ -557,7 +533,7 @@ def loop():
         )
         return
 
-    if 'garden' not in state or not state['garden']:
+    if 'garden_configuration' not in state or not state['garden_configuration'] or 'garden_status' not in state or not state['garden_status']:
         loadGarden()
         return
     
