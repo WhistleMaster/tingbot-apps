@@ -13,20 +13,20 @@ import hashlib
 
 state = {}
 
-screenList = {
+screen_list = {
     0: 'main'
 }
-currentScreen = 0
-state['screen'] = screenList[currentScreen]
+current_screen = 0
+state['screen'] = screen_list[current_screen]
 
 state['displayInfo'] = True
 state['running'] = True
 
-contentList = {
-    0: {'contentName': 'National Geographic', 'contentUrl': 'http://photography.nationalgeographic.com/photography/photo-of-the-day'},
-    1: {'contentName': 'NASA', 'contentUrl': 'http://apod.nasa.gov/apod'},
+content_list = {
+    0: {'name': 'National Geographic', 'url': 'http://photography.nationalgeographic.com/photography/photo-of-the-day'},
+    1: {'name': 'NASA', 'url': 'http://apod.nasa.gov/apod'},
 }
-currentContent= 0
+current_content= 0
 
 def truncate(string, max_chars=36):
     return (string[:max_chars-3] + '...') if len(string) > max_chars else string
@@ -74,14 +74,14 @@ def play_content():
         next_content()
 
 def next_content():
-    global currentContent
+    global current_content
     
-    currentContent = (currentContent + 1) % len(contentList)
+    current_content = (current_content + 1) % len(content_list)
 
 def previous_content():
-    global currentContent
+    global current_content
     
-    currentContent = (currentContent - 1) % len(contentList)
+    current_content = (current_content - 1) % len(content_list)
     
 def toggle_info():
     state['displayInfo'] = not state['displayInfo']
@@ -94,13 +94,13 @@ def refresh_image():
     
     photos = []
     
-    for content in contentList:
+    for content in content_list:
         photo = {}
         
-        doc=urllib2.urlopen(contentList[content]['contentUrl'])
+        doc=urllib2.urlopen(content_list[content]['url'])
         site=doc.read()
         
-        if contentList[content]['contentName'] == 'National Geographic':
+        if content_list[content]['name'] == 'National Geographic':
             
             result=re.search("<meta property=\"og:image\" content=\"(.*?)\"/>",site,re.DOTALL)
             
@@ -118,7 +118,7 @@ def refresh_image():
                     
                 photos.append(photo)
                     
-        elif contentList[content]['contentName'] == 'NASA':
+        elif content_list[content]['name'] == 'NASA':
             result=re.search("<a href=\"(image.*?)\"",site,re.DOTALL)
                 
             if result is not None:
@@ -154,8 +154,8 @@ def download_images():
 
         photo['image'] = Image.load_filename(filename)
 
-def showMain():
-    photo = state['photos'][currentContent]
+def show_main():
+    photo = state['photos'][current_content]
     image = photo['image']
 
     width_sf = 320.0 / image.size[0]
@@ -174,7 +174,7 @@ def showMain():
         )
         
         screen.text(
-            contentList[currentContent]['contentName'],
+            content_list[current_content]['name'],
             xy=(160, 15),
             align='center',
             color='white',
@@ -231,19 +231,22 @@ def showMain():
             font='font/JohnstonITCStd-Light.ttf',
         )
 
+def show_startup():
+    screen.fill(color='black')
+    screen.text(
+        'Loading...',
+        xy=(160, 225),
+        font_size=12,
+        color='white',
+    )
+	
 @every(seconds=1.0/30)
 def loop():
     if 'photos' not in state:
-        screen.fill(color='black')
-        screen.text(
-            'Loading...',
-            xy=(160, 225),
-            font_size=12,
-            color='white',
-        )
+        show_startup()
         return
     
     if state['screen'] == 'main':
-        showMain()
+        show_main()
 
 tingbot.run()

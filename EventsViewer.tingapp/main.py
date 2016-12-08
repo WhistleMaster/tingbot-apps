@@ -9,14 +9,14 @@ import uuid
 
 state = {}
 
-screenList = {
+screen_list = {
     0: 'main'
 }
-currentScreen = 0
-state['screen'] = screenList[currentScreen]
+current_screen = 0
+state['screen'] = screen_list[current_screen]
 
-eventsList = 0
-currentEvent = 0
+events_list = 0
+current_event = 0
 
 state['database'] = lite.connect('data.db')
 state['database'].text_factory = str
@@ -33,7 +33,7 @@ print state['webhook_name']
 @midright_button.hold
 @right_button.hold
 def on_hold():
-    deleteall()
+    delete_all()
 
 @left_button.press
 def on_left():
@@ -66,7 +66,7 @@ def on_touch(xy, action):
     if action == 'down':
         next_page()
 
-def deleteall():
+def delete_all():
     if 'database' in state and state['database']:
         state['cursor'] = state['database'].cursor()
         state['cursor'].execute("DELETE FROM Data")
@@ -74,30 +74,30 @@ def deleteall():
     refresh_events()
 
 def clear():
-    global currentEvent
+    global current_event
     
     if 'database' in state and state['database']:
         state['cursor'] = state['database'].cursor()
-        state['cursor'].execute("DELETE FROM Data WHERE Id = (?)", (state['events'][currentEvent][0],))
+        state['cursor'].execute("DELETE FROM Data WHERE Id = (?)", (state['events'][current_event][0],))
         state['database'].commit()
         previous_page()
     refresh_events()
     
 def previous_page():
-    global currentEvent
+    global current_event
     
     if state['events'] != 0:
-        currentEvent = (currentEvent - 1)
-        if currentEvent < 0: 
-            currentEvent = currentEvent + 1
+        current_event = (current_event - 1)
+        if current_event < 0: 
+            current_event = current_event + 1
     
 def next_page():
-    global currentEvent
+    global current_event
     
     if state['events'] != 0:
-        currentEvent = (currentEvent + 1)
-        if currentEvent >= len(state['events']):
-            currentEvent = currentEvent - 1
+        current_event = (current_event + 1)
+        if current_event >= len(state['events']):
+            current_event = current_event - 1
 
 # http://webhook.tingbot.com/webhook_name
 @webhook(bytes(state['webhook_name']))
@@ -116,7 +116,7 @@ def refresh_events():
         state['cursor'].execute('SELECT * FROM Data ORDER BY Id DESC')
         state['events'] = state['cursor'].fetchall()
 
-def showMain():
+def show_main():
     screen.fill(color='white')
     
     screen.rectangle(
@@ -173,7 +173,7 @@ def showMain():
         )
         
         screen.text(
-            "%s / %s" % (currentEvent+1, len(state['events'])),
+            "%s / %s" % (current_event+1, len(state['events'])),
             xy=(315,10),
             align='topright',
             color='white',
@@ -198,7 +198,7 @@ def showMain():
         )
         
         screen.text(
-            state['events'][currentEvent][1],
+            state['events'][current_event][1],
             xy=(5,32+2),
             align='topleft',
             color='black',
@@ -208,20 +208,23 @@ def showMain():
             max_lines=12
         )
 
+def show_startup():
+    screen.fill(color='white')
+    screen.text(
+        'Loading...',
+        xy=(160, 225),
+        font_size=12,
+        color='black',
+    )
+    
 @every(seconds=1.0/30)
 def loop():
     if 'events' not in state:
-        screen.fill(color='white')
-        screen.text(
-            'Loading...',
-            xy=(160, 225),
-            font_size=12,
-            color='black',
-        )
+        show_startup()
         return
     
     if state['screen'] == 'main':
-        showMain()
+        show_main()
 
 try:
     tingbot.run()

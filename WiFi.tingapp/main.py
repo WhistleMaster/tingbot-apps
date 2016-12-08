@@ -8,14 +8,14 @@ from lib.iwlist import *
 
 state = {}
 
-screenList = {
+screen_list = {
     0: 'networks',
 }
-currentScreen = 0
-state['screen'] = screenList[currentScreen]
+current_screen = 0
+state['screen'] = screen_list[current_screen]
 
-networksList = 0
-currentPage = 0
+networks_list = 0
+current_page = 0
 
 def truncate(string, max_chars=36):
     return (string[:max_chars-3] + '...') if len(string) > max_chars else string
@@ -31,7 +31,7 @@ def on_midleft():
 @touch(xy=(0,16), size=(45,31), align='left')
 def on_touch(xy, action):
     if action == 'down':
-         refreshWiFiNetworks()
+         refresh_wifi_networks()
          
 @touch(xy=(100,17), size=(20,32), align='center')
 def on_touch(xy, action):
@@ -44,29 +44,29 @@ def on_touch(xy, action):
         next_page()
 
 @tingbot.every(seconds=30)
-def refreshWiFiNetworks():
+def refresh_wifi_networks():
     state['networks'] = parse(scan(interface='wlan0'))
     
 def previous_page():
-    global currentPage
+    global current_page
     
     if state['screen'] == 'networks':
-        if networksList != 0:
-            currentPage = (currentPage - 4)
-            if currentPage < 0: currentPage = currentPage + 4
-        showWiFiNetworks()
+        if networks_list != 0:
+            current_page = (current_page - 4)
+            if current_page < 0: current_page = current_page + 4
+        show_wifi_networks()
 
 def next_page():
-    global currentPage
+    global current_page
     
     if state['screen'] == 'networks':
-        if networksList != 0:
-            currentPage = (currentPage + 4)
-            if currentPage >= networksList: currentPage = currentPage - 4
-        showWiFiNetworks()
+        if networks_list != 0:
+            current_page = (current_page + 4)
+            if current_page >= networks_list: current_page = current_page - 4
+        show_wifi_networks()
 
-def showWiFiNetworks():
-    global networksList
+def show_wifi_networks():
+    global networks_list
     
     screen.fill(color=(26,26,26))
     
@@ -98,13 +98,13 @@ def showWiFiNetworks():
     )
     
     networks = state['networks']
-    networksList = len(networks)
+    networks_list = len(networks)
     
-    pageNum = (networksList + 4 - 1) // 4
-    currentNum = (currentPage + 4) // 4
+    pageNum = (networks_list + 4 - 1) // 4
+    currentNum = (current_page + 4) // 4
         
     screen.text(
-        'Networks (%s)' % networksList,
+        'Networks (%s)' % networks_list,
         xy=(160, 15),
         align='center',
         color='white',
@@ -124,7 +124,7 @@ def showWiFiNetworks():
     row_y = 31
     line_num = 1
     
-    for i in range(currentPage, networksList):
+    for i in range(current_page, networks_list):
         if line_num > 4:
             break
         
@@ -250,21 +250,24 @@ def showWiFiNetworks():
         row_y += 52
         line_num += 1
 
+def show_startup():
+    screen.fill('white')
+    screen.image('img/WiFi_startup.png', scale=0.6)
+    screen.text(
+        'Loading...',
+        xy=(165, 195),
+        font_size=12,
+        color='black',
+    )
+	
 @every(seconds=1.0/30)
 def loop():
   
-    if ('networks' not in state):
-        screen.fill('white')
-        screen.image('img/WiFi_startup.png', scale=0.6)
-        screen.text(
-            'Loading...',
-            xy=(165, 195),
-            font_size=12,
-            color='black',
-        )
+    if 'networks' not in state:
+        show_startup()
         return
         
     if state['screen'] == 'networks':
-        showWiFiNetworks()
+        show_wifi_networks()
 
 tingbot.run()

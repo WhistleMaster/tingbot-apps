@@ -1,6 +1,7 @@
 # coding: utf-8
 # v1.1.0
 
+import socket
 import tingbot
 from tingbot import *
 import urllib, json
@@ -10,30 +11,30 @@ import time
 
 state = {}
 
-apiKey = tingbot.app.settings['apiKey']
+api_key = tingbot.app.settings['api_key']
 
-stopList = {
-    0: {'stopCode': 'CORD', 'stopName': 'Concorde'},
-    1: {'stopCode': 'HBOR', 'stopName': 'H.-Bordier'},
-    2: {'stopCode': 'AAIN', 'stopName': 'Av. de l\'Ain'}
+stop_list = {
+    0: {'stop_code': 'CORD', 'stop_name': 'Concorde'},
+    1: {'stop_code': 'HBOR', 'stop_name': 'H.-Bordier'},
+    2: {'stop_code': 'AAIN', 'stop_name': 'Av. de l\'Ain'}
 }
-currentStop = 0
-stopCode = stopList[currentStop]['stopCode']
-stopName = stopList[currentStop]['stopName']
+current_stop = 0
+stop_code = stop_list[current_stop]['stop_code']
+stop_name = stop_list[current_stop]['stop_name']
 
-screenList = {
+screen_list = {
     0: 'departures',
     1: 'disruptions'
 }
-currentScreen = 0
-state['screen'] = screenList[currentScreen]
+current_screen = 0
+state['screen'] = screen_list[current_screen]
 
-currentDisruption = 0
-disruptionsList = 0
+current_disruption = 0
+disruptions_num = 0
 
-baseUrl = "http://prod.ivtr-od.tpg.ch/v1/"
-reqUrl = None
-response = None
+line_colors_list = {}
+
+base_url = "http://prod.ivtr-od.tpg.ch/v1/"
 
 def truncate(string, max_chars=36):
     return (string[:max_chars-3] + '...') if len(string) > max_chars else string
@@ -75,88 +76,100 @@ def on_touch(xy, action):
 @touch(xy=(160,17), size=(64,32), align='center')
 def on_touch(xy, action):
     if action == 'down':
-        if state['screen'] == 'disruptions':
-            refreshDepartures()
+        if state['screen'] == 'departures':
+            refresh_departures()
             showDepartures()
     
 @touch(xy=(0,16), size=(320,31), align='left')
 def on_touch(xy, action):
     if action == 'down':
         if state['screen'] == 'disruptions':
-            refreshDisruptions()
-            showDisruptions()
+            refresh_disruptions()
+            show_disruptions()
 
 def previous_page():
-    global currentStop, stopCode, stopName, currentDisruption
+    global current_stop, stop_code, stop_name, current_disruption
     
     if state['screen'] == 'departures':
-        currentStop = (currentStop - 1) % len(stopList)
-        stopCode = stopList[currentStop]['stopCode']
-        stopName = stopList[currentStop]['stopName']
-        refreshDepartures()
+        current_stop = (current_stop - 1) % len(stop_list)
+        stop_code = stop_list[current_stop]['stop_code']
+        stop_name = stop_list[current_stop]['stop_name']
+        refresh_departures()
     else:
-        if disruptionsList != 0:
-            currentDisruption = (currentDisruption - 2)
-            if currentDisruption < 0: currentDisruption = currentDisruption + 2
-        refreshDisruptions()
+        if disruptions_num != 0:
+            current_disruption = (current_disruption - 2)
+            if current_disruption < 0: current_disruption = current_disruption + 2
+        refresh_disruptions()
     
 def next_page():
-    global currentStop, stopCode, stopName, currentDisruption
+    global current_stop, stop_code, stop_name, current_disruption
     
     if state['screen'] == 'departures':
-        currentStop = (currentStop + 1) % len(stopList)
-        stopCode = stopList[currentStop]['stopCode']
-        stopName = stopList[currentStop]['stopName']
-        refreshDepartures()
+        current_stop = (current_stop + 1) % len(stop_list)
+        stop_code = stop_list[current_stop]['stop_code']
+        stop_name = stop_list[current_stop]['stop_name']
+        refresh_departures()
     else:
-        if disruptionsList != 0:
-            currentDisruption = (currentDisruption + 2)
-            if currentDisruption >= disruptionsList: currentDisruption = currentDisruption - 2
-        refreshDisruptions()
+        if disruptions_num != 0:
+            current_disruption = (current_disruption + 2)
+            if current_disruption >= disruptions_num: current_disruption = current_disruption - 2
+        refresh_disruptions()
     
 def previous_screen():
-    global currentScreen
+    global current_screen
     
-    currentScreen = (currentScreen - 1) % len(screenList)
-    state['screen'] = screenList[currentScreen]
+    current_screen = (current_screen - 1) % len(screen_list)
+    state['screen'] = screen_list[current_screen]
     
-    refreshDepartures()
-    refreshDisruptions()
+    refresh_departures()
+    refresh_disruptions()
     
 def next_screen():
-    global currentScreen
+    global current_screen
     
-    currentScreen = (currentScreen + 1) % len(screenList)
-    state['screen'] = screenList[currentScreen]
+    current_screen = (current_screen + 1) % len(screen_list)
+    state['screen'] = screen_list[current_screen]
     
-    refreshDepartures()
-    refreshDisruptions()
+    refresh_departures()
+    refresh_disruptions()
 
 @tingbot.every(minutes=1)
-def refreshDisruptions():
-    reqUrl = baseUrl + "GetDisruptions.json" + "?key=%s" % apiKey
-    response = urllib.urlopen(reqUrl)
+def refresh_disruptions():
+    if state['screen'] == 'disruptions':
+        reqUrl = base_url + "GetDisruptions.json" + "?key=%s" % api_key
+        response = urllib.urlopen(reqUrl)
     
-    state['disruptions'] = json.loads(response.read())
+        state['disruptions'] = json.loads(response.read())
 
-@tingbot.every(seconds=30)
-def refreshDepartures():
-    reqUrl = baseUrl + "GetNextDepartures.json" + "?key=%s" % apiKey + "&stopCode=%s" % stopCode
-    response = urllib.urlopen(reqUrl)
+@tingbot.every(minutes=1)
+def refresh_departures():
+    if state['screen'] == 'departures':
+        reqUrl = base_url + "GetNextDepartures.json" + "?key=%s" % api_key + "&stopCode=%s" % stop_code
+        response = urllib.urlopen(reqUrl)
 
-    state['departures'] = json.loads(response.read())
+        state['departures'] = json.loads(response.read())
     
-def getLineColor(lineNum):
-    reqUrl = baseUrl + "GetLinesColors.json" + "?key=%s" % apiKey
-    response = urllib.urlopen(reqUrl)
+def get_line_color(lineNum):
+    if lineNum in line_colors_list:
+        return line_colors_list[lineNum]
+    else:
+        reqUrl = base_url + "GetLinesColors.json" + "?key=%s" % api_key
+        response = urllib.urlopen(reqUrl)
 
-    data = json.loads(response.read())
-    
-    return [item for item in data["colors"] 
-                if item["lineCode"] == lineNum]
+        data = json.loads(response.read())
+        
+        lineColor = [item for item in data["colors"] 
+                    if item["lineCode"] == lineNum]
+                                        
+        if not lineColor:
+            line_colors_list[lineNum] = '000000'
+        else:
+            line_colors_list[lineNum] = lineColor[0]['background']
+                                        
+        return line_colors_list[lineNum]
 
-def showDisruptions():
-    global disruptionsList
+def show_disruptions():
+    global disruptions_num
     
     screen.fill(color=(26,26,26))
     
@@ -208,13 +221,13 @@ def showDisruptions():
             font_size=17,
         )
     else:
-        disruptionsList = len(disruptions['disruptions'])
+        disruptions_num = len(disruptions['disruptions'])
 
-        pageNum = (disruptionsList + 2 - 1) // 2
-        currentNum = (currentDisruption + 2) // 2
+        page_num = (disruptions_num + 2 - 1) // 2
+        current_num = (current_disruption + 2) // 2
         
         screen.text(
-            'Perturbations (%s)' % disruptionsList,
+            'Perturbations (%s)' % disruptions_num,
             xy=(10,15),
             align='left',
             color='white',
@@ -223,7 +236,7 @@ def showDisruptions():
         )
         
         screen.text(
-            "%s / %s" % (currentNum, pageNum),
+            "%s / %s" % (current_num, page_num),
             xy=(170,17),
             align='right',
             color='white',
@@ -231,7 +244,7 @@ def showDisruptions():
             font_size=14,
         )
         
-        for i in range(currentDisruption, disruptionsList):
+        for i in range(current_disruption, disruptions_num):
             if line_num > 2:
                 break
             
@@ -306,7 +319,7 @@ def showDepartures():
     )
     
     screen.text(
-        stopName,
+        stop_name,
         xy=(310,17),
         align='right',
         color='white',
@@ -335,7 +348,7 @@ def showDepartures():
     
     row_y = 31
     line_num = 1
-    
+
     for departure in departures['departures']:
         if line_num > 4:
             break
@@ -358,7 +371,7 @@ def showDepartures():
             bus_number,
             xy=(10,row_y+27),
             align='left',
-            color=hex_to_rgb(getLineColor(bus_number)[0]['background']),
+            color=hex_to_rgb(get_line_color(bus_number)),
             font='font/JohnstonITCStd-Bold.ttf',
             font_size=26,
         )
@@ -407,22 +420,38 @@ def showDepartures():
         row_y += 52
         line_num += 1
 
+def show_startup():
+    screen.fill('white')
+    screen.image('img/TPG_startup.png')
+    screen.text(
+        'Loading...',
+        xy=(160, 180),
+        font_size=12,
+        color='black',
+    )
+	
+@once()
+def setup():
+    reqUrl = base_url + "GetDisruptions.json" + "?key=%s" % api_key
+    response = urllib.urlopen(reqUrl)
+    
+    state['disruptions'] = json.loads(response.read())
+    
+    reqUrl = base_url + "GetNextDepartures.json" + "?key=%s" % api_key + "&stopCode=%s" % stop_code
+    response = urllib.urlopen(reqUrl)
+
+    state['departures'] = json.loads(response.read())
+
 @every(seconds=1.0/30)
 def loop():
     if ('disruptions' not in state) or ('departures' not in state):
-        screen.fill('white')
-        screen.image('img/TPG_startup.png')
-        screen.text(
-            'Loading...',
-            xy=(160, 180),
-            font_size=12,
-            color='black',
-        )
+        show_startup()
         return
     
     if state['screen'] == 'departures':
         showDepartures()
     elif state['screen'] == 'disruptions':
-        showDisruptions()
+        show_disruptions()
 
+socket.setdefaulttimeout(60)
 tingbot.run()

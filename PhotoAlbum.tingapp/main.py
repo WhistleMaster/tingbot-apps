@@ -12,14 +12,14 @@ def truncate(string, max_chars=36):
     return (string[:max_chars-3] + '...') if len(string) > max_chars else string
 
 state = {}
-screenList = {
+screen_list = {
     0: 'main'
 }
-currentScreen = 0
-state['screen'] = screenList[currentScreen]
+current_screen = 0
+state['screen'] = screen_list[current_screen]
 
-extsList = tingbot.app.settings['extsList']
-foldersList = tingbot.app.settings['foldersList']
+exts_list = tingbot.app.settings['exts_list']
+folders_list = tingbot.app.settings['folders_list']
 
 state['index'] = 0
 state['displayInfo'] = False
@@ -77,8 +77,8 @@ def toggle_running():
 def refresh_album():
     photos = []
         
-    for folder in foldersList:
-        for ext in extsList:
+    for folder in folders_list:
+        for ext in exts_list:
             if os.path.exists(folder):
                 photosList = glob(os.path.join(folder, "*.{}".format(ext)))
                 photos.extend(photosList)
@@ -207,8 +207,17 @@ def display_info():
             font_size=14,
             font='font/OpenSans-Semibold.ttf',
         )
-
-def showMain():
+		
+def show_startup():
+    screen.fill(color='black')
+    screen.text(
+        'Loading...',
+        xy=(160, 225),
+        font_size=12,
+        color='white',
+    )
+	
+def show_main():
     if not state['photos']:
         screen.fill(color='white')
         screen.text(
@@ -224,16 +233,10 @@ def showMain():
 @every(seconds=1.0/30)     
 def loop():
     if 'photos' not in state:
-        screen.fill(color='black')
-        screen.text(
-            'Loading...',
-            xy=(160, 225),
-            font_size=12,
-            color='white',
-        )
+        show_startup()
         return
 
     if state['screen'] == 'main':
-        showMain()
+        show_main()
 
 tingbot.run()

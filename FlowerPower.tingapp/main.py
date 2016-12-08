@@ -1,5 +1,5 @@
 # coding: utf-8
-# v1.1.0
+# v1.1.1
 
 import tingbot
 from tingbot import *
@@ -18,35 +18,35 @@ client_secret = tingbot.app.settings['client_secret']
 
 state = {}
 
-screenList = {
+screen_list = {
     0: 'garden',
     1: 'plant',
     2: 'sensor'
 }
-currentScreen = 0
-state['screen'] = screenList[currentScreen]
+current_screen = 0
+state['screen'] = screen_list[current_screen]
 
-currentPlant = 0
+current_plant = 0
 
-colorCodeMapper = {
+color_code_mapper = {
     4: 'brown',
     6: 'green',
     7: 'blue'
 }
 
-sensorInfoList = {
-    0: {'infoName': 'Name', 'infoData': 'nickname'},
-    1: {'infoName': 'Serial', 'infoData': 'system_id'},
-    2: {'infoName': 'Battery', 'infoData': 'current_value'},
-    3: {'infoName': 'Firmware', 'infoData': 'firmware_version'},
-    4: {'infoName': 'Last upload', 'infoData': 'last_sample_upload'},
+sensor_info_list = {
+    0: {'name': 'Name', 'data': 'nickname'},
+    1: {'name': 'Serial', 'data': 'system_id'},
+    2: {'name': 'Battery', 'data': 'current_value'},
+    3: {'name': 'Firmware', 'data': 'firmware_version'},
+    4: {'name': 'Last upload', 'data': 'last_sample_upload'},
 }
 
-plantList = {
-    0: {'infoName': 'water', 'infoData': 'soil_moisture'},
-    1: {'infoName': 'fert', 'infoData': 'fertilizer'},
-    2: {'infoName': 'temp', 'infoData': 'air_temperature'},
-    3: {'infoName': 'sun', 'infoData': 'light'},
+plant_list = {
+    0: {'name': 'water', 'data': 'soil_moisture'},
+    1: {'name': 'fert', 'data': 'fertilizer'},
+    2: {'name': 'temp', 'data': 'air_temperature'},
+    3: {'name': 'sun', 'data': 'light'},
 }
 
 def truncate(string, max_chars=36):
@@ -89,26 +89,26 @@ def on_touch(xy, action):
         sensor_screen()
         
 def previous_plant():
-    global currentPlant
+    global current_plant
     
-    currentPlant = (currentPlant - 1) % len(state['garden_configuration'])
+    current_plant = (current_plant - 1) % len(state['garden_configuration'])
     
 def next_plant():
-    global currentPlant
+    global current_plant
     
-    currentPlant = (currentPlant - 1) % len(state['garden_configuration'])
+    current_plant = (current_plant - 1) % len(state['garden_configuration'])
     
 def plant_screen():
     if state['screen'] != 'plant':
-            state['screen'] = screenList[1]
+            state['screen'] = screen_list[1]
     else:
-        state['screen'] = screenList[0]
+        state['screen'] = screen_list[0]
     
 def sensor_screen():
     if state['screen'] != 'sensor':
-            state['screen'] = screenList[2]
+            state['screen'] = screen_list[2]
     else:
-        state['screen'] = screenList[0]
+        state['screen'] = screen_list[0]
 
 @tingbot.every(hours=1)
 def authenticate():
@@ -128,7 +128,7 @@ def authenticate():
     state['access_token'] = deco["access_token"]
 
 @tingbot.every(hours=1)
-def loadGarden():
+def load_garden():
     if 'access_token' not in state or not state['access_token']:
         return
     
@@ -151,12 +151,12 @@ def loadGarden():
 
     state['garden_status'] = deco["locations"]
     
-    downloadGardenImages()
+    download_garden_images()
 
-def getSensorColor():
-    return colorCodeMapper[state['garden_configuration'][currentPlant]['sensor']['color']] or 'unknown'
+def get_sensor_color():
+    return color_code_mapper[state['garden_configuration'][current_plant]['sensor']['color']] or 'unknown'
 
-def showSensor():
+def show_sensor():
     screen.fill(color=(212,212,212))
     
     screen.rectangle(
@@ -203,7 +203,7 @@ def showSensor():
     )
     
     row_y = 31
-    sensor_serial = state['garden_configuration'][currentPlant]['sensor']['sensor_identifier']
+    sensor_serial = state['garden_configuration'][current_plant]['sensor']['sensor_identifier']
 
     for i in range(0,5):
 
@@ -215,7 +215,7 @@ def showSensor():
         )
         
         screen.text(
-            sensorInfoList[i]['infoName'],
+            sensor_info_list[i]['name'],
             xy=(20,row_y+23), #27
             align='left',
             color='white',
@@ -224,11 +224,11 @@ def showSensor():
         )
         
         if i == 2:
-            infoText = str(state['garden_status'][currentPlant]['battery']['gauge_values'][sensorInfoList[i]['infoData']]) + '%'
+            infoText = str(state['garden_status'][current_plant]['battery']['gauge_values'][sensor_info_list[i]['data']]) + '%'
         elif i == 4:
-            infoText = state['garden_status'][currentPlant][sensorInfoList[i]['infoData']]
+            infoText = state['garden_status'][current_plant][sensor_info_list[i]['data']]
         else:
-            infoText = state['garden_configuration'][currentPlant]['sensor'][sensorInfoList[i]['infoData']]
+            infoText = state['garden_configuration'][current_plant]['sensor'][sensor_info_list[i]['data']]
 
         screen.text(
             infoText,
@@ -243,7 +243,7 @@ def showSensor():
 
         row_y += 42 #52
 
-def showPlant():
+def show_plant():
     screen.fill(color=(212,212,212))
     
     screen.rectangle(
@@ -254,7 +254,7 @@ def showPlant():
     )
 
     screen.text(
-        truncate(state['garden_configuration'][currentPlant]['plant_nickname'].upper(),13),
+        truncate(state['garden_configuration'][current_plant]['plant_nickname'].upper(),13),
         xy=(160, 19),
         align='center',
         color='white',
@@ -301,15 +301,17 @@ def showPlant():
         )
         
         if i == 0:
-            instruction = state['garden_status'][currentPlant]['watering'][plantList[i]['infoData']]['instruction_key']
+            instruction = state['garden_status'][current_plant]['watering'][plant_list[i]['data']]['instruction_key']
         else:
-            instruction = state['garden_status'][currentPlant][plantList[i]['infoData']]['instruction_key']
+            instruction = state['garden_status'][current_plant][plant_list[i]['data']]['instruction_key']
         
         if instruction is not None:
             if 'good' in instruction:
                 status = 'good'
             elif 'too_low' in instruction:
                 status = 'warning'
+            elif 'too_high' in instruction:
+                status = 'critical'
             else:
                status = 'none'
               
@@ -329,7 +331,7 @@ def showPlant():
             max_lines=2
         )
         
-        image = 'img/instruction_%s_%s.png' % (plantList[i]['infoName'], status)
+        image = 'img/instruction_%s_%s.png' % (plant_list[i]['name'], status)
         
         screen.image(
             image,
@@ -339,9 +341,9 @@ def showPlant():
         )
         
         if i == 0:
-            infoText = state['garden_status'][currentPlant]['watering'][plantList[i]['infoData']]['gauge_values']['current_value']
+            infoText = state['garden_status'][current_plant]['watering'][plant_list[i]['data']]['gauge_values']['current_value']
         else:
-            infoText = state['garden_status'][currentPlant][plantList[i]['infoData']]['gauge_values']['current_value']
+            infoText = state['garden_status'][current_plant][plant_list[i]['data']]['gauge_values']['current_value']
         
         if infoText is not None:
             if i == 0 :
@@ -366,10 +368,10 @@ def showPlant():
 
         row_y += 52
         
-def showGarden():
+def show_garden():
     screen.fill(color=(212,212,212))
     
-    image = state['garden_configuration'][currentPlant]['pictures'][0]['image']
+    image = state['garden_configuration'][current_plant]['pictures'][0]['image']
     width_sf = 320.0 / image.size[0]
     height_sf = 240.0 / image.size[1]
     sf = max(width_sf, height_sf)
@@ -383,7 +385,7 @@ def showGarden():
     )
     
     screen.image(
-        'img/sensor-image_%s.png' % getSensorColor(),
+        'img/sensor-image_%s.png' % get_sensor_color(),
         xy=(316, 195),
         align='right',
         scale=0.5
@@ -439,7 +441,7 @@ def showGarden():
     )
         
     screen.text(
-        truncate(state['garden_configuration'][currentPlant]['plant_nickname'].upper(),13),
+        truncate(state['garden_configuration'][current_plant]['plant_nickname'].upper(),13),
         align='left',
         xy=(5, 228),
         color='white',
@@ -447,7 +449,7 @@ def showGarden():
         font='font/PoplarStd.otf',
     )
     
-    if state['garden_configuration'][currentPlant]['in_pot']:
+    if state['garden_configuration'][current_plant]['in_pot']:
         screen.image(
             'img/ico_pot.png',
             xy=(167, 225),
@@ -478,7 +480,7 @@ def showGarden():
             font='font/PoplarStd.otf',
         )
     
-    if state['garden_configuration'][currentPlant]['is_indoor']:
+    if state['garden_configuration'][current_plant]['is_indoor']:
         screen.image(
             'img/ico_indoor.png',
             xy=(250, 225),
@@ -509,7 +511,7 @@ def showGarden():
             font='font/PoplarStd.otf',
         )
  
-def downloadGardenImages():
+def download_garden_images():
     for i in range(0,len(state['garden_configuration'])):
         url = state['garden_configuration'][i]['pictures'][0]['url']
         filename = '/tmp/int-' + os.path.basename(urlparse(url).path)
@@ -519,29 +521,32 @@ def downloadGardenImages():
 
         state['garden_configuration'][i]['pictures'][0]['image'] = Image.load_filename(filename)
 
-@every(seconds=1.0/30)      
+def show_startup():
+    screen.fill(color=(212,212,212))
+    screen.image('img/f_logo_w.png')
+    screen.text(
+        'Loading...',
+        xy=(160, 175),
+        font_size=18,
+        font='font/PoplarStd.otf',
+        color='black',
+    )
+    
+@every(seconds=1.0/30)
 def loop():
     if 'access_token' not in state or not state['access_token']:
-        screen.fill(color=(212,212,212))
-        screen.image('img/f_logo_w.png')
-        screen.text(
-            'Loading...',
-            xy=(160, 175),
-            font_size=18,
-            font='font/PoplarStd.otf',
-            color='black',
-        )
+        show_startup()
         return
 
     if 'garden_configuration' not in state or not state['garden_configuration'] or 'garden_status' not in state or not state['garden_status']:
-        loadGarden()
+        load_garden()
         return
     
     if state['screen'] == 'garden':
-        showGarden()
+        show_garden()
     elif state['screen'] == 'plant':
-        showPlant()
+        show_plant()
     elif state['screen'] == 'sensor':
-        showSensor()
+        show_sensor()
         
 tingbot.run()

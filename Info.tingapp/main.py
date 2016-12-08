@@ -9,11 +9,11 @@ import socket, fcntl, struct, math, time, platform
 
 state = {}
 
-screenList = {
+screen_list = {
     0: 'main'
 }
-currentScreen = 0
-state['screen'] = screenList[currentScreen]
+current_screen = 0
+state['screen'] = screen_list[current_screen]
 
 state['wifi'] = {}
 state['wifi']['interface'] = 'wlan0'
@@ -538,7 +538,7 @@ def display_info():
         font_size=8,
     )
 
-def showMain():
+def show_main():
     display_time()
     
     screen.rectangle( xy=(10,17), align='topleft', size=(301,68), color='green')
@@ -554,19 +554,22 @@ def showMain():
     
     display_info()
 
+def show_startup():
+    screen.fill(color='black')
+    screen.text(
+        'Loading...',
+        xy=(160, 225),
+        font_size=12,
+        color='green',
+    )
+	
 @every(seconds=1.0/30)
 def loop():
     if 'wifi' not in state or not state['wifi'] or 'info' not in state or not state['info']:
-        screen.fill(color='black')
-        screen.text(
-            'Loading...',
-            xy=(160, 120),
-            font_size=12,
-            color='green',
-        )
+        show_startup()
         return
     
     if state['screen'] == 'main':
-        showMain()
+        show_main()
 
 tingbot.run()

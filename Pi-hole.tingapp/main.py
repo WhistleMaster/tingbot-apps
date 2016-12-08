@@ -10,31 +10,31 @@ import time
 
 state = {}
 
-screenList = {
+screen_list = {
     0: 'main'
 }
-currentScreen = 0
-state['screen'] = screenList[currentScreen]
+current_screen = 0
+state['screen'] = screen_list[current_screen]
 
-baseUrl = "http://" + tingbot.app.settings['IP'] + "/admin/"
-reqUrl = None
+base_url = "http://" + tingbot.app.settings['IP'] + "/admin/"
+req_url = None
 response = None
 
-statsList = {
-    0: {'statName': 'Ads blocked', 'statJSON': 'ads_blocked_today'},
-    1: {'statName': 'DNS queries', 'statJSON': 'dns_queries_today'},
-    2: {'statName': 'Pi-holed', 'statJSON': 'ads_percentage_today'},
-    3: {'statName': 'Domain list size', 'statJSON': 'domains_being_blocked'},
+stats_list = {
+    0: {'name': 'Ads blocked', 'json': 'ads_blocked_today'},
+    1: {'name': 'DNS queries', 'json': 'dns_queries_today'},
+    2: {'name': 'Pi-holed', 'json': 'ads_percentage_today'},
+    3: {'name': 'Domain list size', 'json': 'domains_being_blocked'},
 }
 
 @tingbot.every(minutes=1)
 def refresh():
-    reqUrl = baseUrl + "api.php"
-    response = urllib.urlopen(reqUrl)
+    req_url = base_url + "api.php"
+    response = urllib.urlopen(req_url)
     
     state['stats'] = json.loads(response.read())
  
-def showMain():
+def show_main():
     screen.fill(color=(26,26,26))
 
     screen.rectangle(
@@ -72,7 +72,7 @@ def showMain():
         )
         
         screen.text(
-            statsList[i]['statName'],
+            stats_list[i]['name'],
             xy=(20,row_y+27),
             align='left',
             color=(220,220,220),
@@ -81,9 +81,9 @@ def showMain():
         )
         
         if i == 2:
-            statText = state['stats'][statsList[i]['statJSON']] + "%"
+            statText = state['stats'][stats_list[i]['json']] + "%"
         else:
-            statText = state['stats'][statsList[i]['statJSON']]
+            statText = state['stats'][stats_list[i]['json']]
         
         screen.text(
             statText,
@@ -95,21 +95,24 @@ def showMain():
         )
 
         row_y += 52
-
+		
+def show_startup():
+    screen.fill('white')
+    screen.image('img/logo.png')
+    screen.text(
+        'Loading...',
+        xy=(160, 220),
+        font_size=12,
+        color='white',
+    )
+	
 @every(seconds=1.0/30)
 def loop():
     if 'stats' not in state or not state['stats']:
-        screen.fill('white')
-        screen.image('img/logo.png')
-        screen.text(
-            'Loading...',
-            xy=(160, 220),
-            font_size=12,
-            color='white',
-        )
+        show_startup()
         return
     
     if state['screen'] == 'main':
-        showMain()
+        show_main()
 
 tingbot.run()

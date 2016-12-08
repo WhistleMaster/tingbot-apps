@@ -10,15 +10,15 @@ from urlparse import urlparse
 
 state = {}
 
-screenList = {
+screen_list = {
     0: 'main'
 }
-currentScreen = 0
-state['screen'] = screenList[currentScreen]
+current_screen = 0
+state['screen'] = screen_list[current_screen]
 
-currentApp = 0
+current_app = 0
 
-reqUrl = "http://ocean.tingbot.com/apps.json"
+req_url = "http://ocean.tingbot.com/apps.json"
 response = None
 
 def hex_to_rgb(value):
@@ -29,7 +29,7 @@ def hex_to_rgb(value):
 @touch()
 def on_touch(action):
     if action == 'down':
-        app = state['apps'][currentApp]
+        app = state['apps'][current_app]
         screen.fill(color='black')
         screen.text(
             'Downloading %s...' % app['name'],
@@ -49,19 +49,19 @@ def on_right():
     next_feed()
 
 def next_feed():
-    global currentApp
+    global current_app
     
-    currentApp = (currentApp + 1) % len(state['apps'])
+    current_app = (current_app + 1) % len(state['apps'])
 
 def previous_feed():
-    global currentApp
+    global current_app
     
-    currentApp = (currentApp - 1) % len(state['apps'])
+    current_app = (current_app - 1) % len(state['apps'])
     
 @every(minutes=30)
 def refresh_store():
 
-    response = urllib.urlopen(reqUrl)
+    response = urllib.urlopen(req_url)
     apps = json.loads(response.read())
     state['apps'] = apps
     
@@ -107,10 +107,14 @@ def download_app(app):
 
     app['path'] = app_path
 
-def showMain():
-    app = state['apps'][currentApp]
+def show_main():
+    app = state['apps'][current_app]
     
-    color = hex_to_rgb(app['background_color'])
+    if 'background_color' in app:
+        color = hex_to_rgb(app['background_color'])
+    else:
+        color = hex_to_rgb('3a3a3c')
+        
     screen.fill(color=color)
         
     screen.text(
@@ -156,26 +160,29 @@ def showMain():
         font='font/JohnstonITCStd-Bold.ttf',
     )
 
+def show_startup():
+    screen.fill(color='white')
+    screen.text(
+        "Ocean",
+        color='black',
+        font='font/Minecraftia-Regular.ttf',
+        font_size=36,
+    )
+
+    screen.text(
+        'Loading...',
+        xy=(160, 180),
+        font_size=12,
+        color='black',
+    )
+	
 @every(seconds=1.0/30)
 def loop():
     if 'apps' not in state:
-        screen.fill(color='white')
-        screen.text(
-            "Ocean",
-            color='black',
-            font='font/Minecraftia-Regular.ttf',
-            font_size=36,
-        )
-    
-        screen.text(
-            'Loading...',
-            xy=(160, 180),
-            font_size=12,
-            color='black',
-        )
+        show_startup()
         return
 
     if state['screen'] == 'main':
-        showMain()
+        show_main()
         
 tingbot.run()

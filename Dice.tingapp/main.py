@@ -9,11 +9,11 @@ import random
 from time import sleep
 
 state = {}
-screenList = {
+screen_list = {
     0: 'main'
 }
-currentScreen = 0
-state['screen'] = screenList[currentScreen]
+current_screen = 0
+state['screen'] = screen_list[current_screen]
 
 state['roll'] = False
 
@@ -39,7 +39,7 @@ def roll():
     state['dice1'] = random.randint(1, 6)
     state['dice2'] = random.randint(1, 6)
 
-def showMain():
+def show_main():
     
     screen.fill(color=(57, 101, 74))
 
@@ -96,24 +96,26 @@ def showMain():
         font_size=18, 
     )
 
+def show_startup():
+    screen.fill(color=(57, 101, 74))
+    screen.text(
+        'Loading...',
+        xy=(160, 225),
+        font_size=12,
+        color='white',
+    )
+    
 @once()
 def setup():
-    
     roll()
 
 @every(seconds=1.0/30)
 def loop():
     if 'dice1' not in state or not state['dice1'] or 'dice2' not in state or not state['dice2']:
-        screen.fill(color=(57, 101, 74))
-        screen.text(
-            'Loading...',
-            xy=(160, 225),
-            font_size=12,
-            color='white',
-        )
+        show_startup()
         return
     
     if state['screen'] == 'main':
-        showMain()
+        show_main()
         
 tingbot.run()

@@ -18,15 +18,15 @@ YOFFSET = 0
 
 state = {}
 
-screenList = {
+screen_list = {
     0: 'main'
 }
-currentScreen = 0
-state['screen'] = screenList[currentScreen]
+current_screen = 0
+state['screen'] = screen_list[current_screen]
 
-mainBoard = [[None, None, None], [None, None, None], [None, None, None]]
-playerTurn = random.choice('XO')
-gameOver = False
+main_board = [[None, None, None], [None, None, None], [None, None, None]]
+player_turn = random.choice('XO')
+game_over = False
 boxx = None
 boxy = None
 
@@ -55,16 +55,16 @@ def on_touch(xy, action):
     if action == 'down':
         global boxx, boxy
         
-        if not gameOver and not start and not first:
+        if not game_over and not start and not first:
             (x, y) = xy
-            (boxx, boxy) = getBoxAtPixel(x, y)
+            (boxx, boxy) = get_box_at_pixel(x, y)
 
 @touch(size=(320, 240-44), align="bottom")
 def on_touch(xy, action):
     if action == 'down':
         global first
         
-        if gameOver:
+        if game_over:
             reset()
         elif first:
             first = False
@@ -91,14 +91,14 @@ def on_touch(xy, action):
             screen.fill(color=(30, 160, 146))
             
 def reset():
-    global mainBoard, gameOver, playerTurn, boxx, boxy, bot, start, first
+    global main_board, game_over, player_turn, boxx, boxy, bot, start, first
     
-    mainBoard = [[None, None, None], [None, None, None], [None, None, None]]
-    playerTurn = random.choice('XO')
+    main_board = [[None, None, None], [None, None, None], [None, None, None]]
+    player_turn = random.choice('XO')
     boxx = None
     boxy = None
     
-    gameOver = False
+    game_over = False
     start = True
     first = True
     
@@ -106,41 +106,41 @@ def reset():
 
     screen.fill(color=(30, 160, 146))
     
-def showMain():
-    global mainBoard, boxx, boxy, playerTurn, gameOver, start
+def show_main():
+    global main_board, boxx, boxy, player_turn, game_over, start
     
     if start:
-        displayMessage("1 P                         2 P")
+        display_message("1 P                         2 P")
     elif first:
-        displayMessage("%s starts" % playerTurn)
+        display_message("%s starts" % player_turn)
 
-    if not gameOver and not start and not first:
-        drawBoard(mainBoard)
+    if not game_over and not start and not first:
+        draw_board(main_board)
         
-        if playerTurn == 'O' and bot:
-            (boxx, boxy) = getBotMove(mainBoard)
+        if player_turn == 'O' and bot:
+            (boxx, boxy) = get_bot_move(main_board)
     
         if boxx != None and boxy != None:
-            if mainBoard[boxx][boxy] == None:
-                mainBoard[boxx][boxy] = playerTurn
-                drawXO(playerTurn, boxx, boxy)
+            if main_board[boxx][boxy] == None:
+                main_board[boxx][boxy] = player_turn
+                draw_XO(player_turn, boxx, boxy)
                 
-                if playerTurn == 'X':
-                    playerTurn = 'O'
+                if player_turn == 'X':
+                    player_turn = 'O'
                 else:
-                    playerTurn = 'X'
+                    player_turn = 'X'
                 
-                if hasWon(mainBoard):
-                    if playerTurn == 'X':
-                        displayMessage('X winner!')
+                if has_won(main_board):
+                    if player_turn == 'X':
+                        display_message('X winner!')
                     else:
-                        displayMessage('O winner!')
-                    gameOver = True
-                elif hasDraw(mainBoard):
-                    displayMessage('Draw!')
-                    gameOver = True
+                        display_message('O winner!')
+                    game_over = True
+                elif has_draw(main_board):
+                    display_message('Draw!')
+                    game_over = True
 
-def displayMessage(message):
+def display_message(message):
     screen.rectangle(
         align='top',
         size=(320,44),
@@ -155,20 +155,20 @@ def displayMessage(message):
         font_size=30,
     )
 
-def getBoxAtPixel(x, y):
+def get_box_at_pixel(x, y):
     for boxx in range(BOARDWIDTH):
         for boxy in range(BOARDHEIGHT):
-            (left, top) = leftTopCoordsOfBox(boxx, boxy)
+            (left, top) = left_top_coords_of_box(boxx, boxy)
             boxRect = pygame.Rect(left, top, BOXSIZE, BOXSIZE)
             if boxRect.collidepoint(x, y):
                 return (boxx, boxy)
                 
     return (None, None)
 
-def drawBoard(board):
+def draw_board(board):
     for boxx in range(BOARDWIDTH):
         for boxy in range(BOARDHEIGHT):
-            (left, top) = leftTopCoordsOfBox(boxx, boxy)
+            (left, top) = left_top_coords_of_box(boxx, boxy)
             screen.rectangle(
                     xy=(left,top),
                     align='topleft',
@@ -176,21 +176,21 @@ def drawBoard(board):
                     color=(38, 188, 172),
                 )
             if board[boxx][boxy] != None:
-                drawXO(board[boxx][boxy], boxx, boxy)
+                draw_XO(board[boxx][boxy], boxx, boxy)
 
-def leftTopCoordsOfBox(boxx, boxy):
+def left_top_coords_of_box(boxx, boxy):
     left = boxx * (BOXSIZE + GAPSIZE) + GAPSIZE + XOFFSET
     top = boxy * (BOXSIZE + GAPSIZE) + GAPSIZE + YOFFSET
     return (left, top)
 
-def getBotMove(board):
+def get_bot_move(board):
     
     for boxx in range(BOARDWIDTH):
         for boxy in range(BOARDHEIGHT):
             board_copy = copy.deepcopy(board)
             if board_copy[boxx][boxy] == None:
                 board_copy[boxx][boxy] = 'O'
-                if hasWon(board_copy):
+                if has_won(board_copy):
                     return (boxx, boxy)
     
     for boxx in range(BOARDWIDTH):
@@ -198,7 +198,7 @@ def getBotMove(board):
             board_copy = copy.deepcopy(board)
             if board_copy[boxx][boxy] == None:
                 board_copy[boxx][boxy] = 'X'
-                if hasWon(board_copy):
+                if has_won(board_copy):
                     return (boxx, boxy)
 
     for boxx in range(BOARDWIDTH):
@@ -209,9 +209,9 @@ def getBotMove(board):
     if board[1][1] == None:
         return (1, 1)
         
-def drawXO(playerTurn, boxx, boxy):
-    (left, top) = leftTopCoordsOfBox(boxx, boxy)
-    if playerTurn == 'X':
+def draw_XO(player_turn, boxx, boxy):
+    (left, top) = left_top_coords_of_box(boxx, boxy)
+    if player_turn == 'X':
         screen.line(
             start_xy=(left + 3, top + 3), 
             end_xy=(left + BOXSIZE - 3, top + BOXSIZE - 3), 
@@ -228,7 +228,7 @@ def drawXO(playerTurn, boxx, boxy):
         HALF = int(BOXSIZE / 2)
         pygame.draw.circle(screen.surface, (255, 255, 255), (left + HALF, top + HALF), HALF - 3, 4)
 
-def hasWon(board):
+def has_won(board):
     
     for xrow in board:
         if xrow[0] != None and xrow[0] == xrow[1] and xrow[1] == xrow[2]:
@@ -246,7 +246,7 @@ def hasWon(board):
             
     return False
 
-def hasDraw(board):
+def has_draw(board):
     for i in board:
         if None in i:
             return False
@@ -260,6 +260,6 @@ def setup():
 @every(seconds=1.0/30)
 def loop():
     if state['screen'] == 'main':
-        showMain()
+        show_main()
     
 tingbot.run()

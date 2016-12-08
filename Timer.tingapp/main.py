@@ -10,15 +10,15 @@ import lib.countdown
 
 state = {}
 
-screenList = {
+screen_list = {
     0: 'stopwatch',
     1: 'countdown'
 }
-currentScreen = 0
-state['screen'] = screenList[currentScreen]
+current_screen = 0
+state['screen'] = screen_list[current_screen]
 
 sw = lib.stopwatch.stopwatch()
-currentLap = 0
+current_lap = 0
 
 cd = lib.countdown.countdown()
 
@@ -111,30 +111,30 @@ def start_stop():
             cd.start()
 
 def lap_reset():
-    global sw, currentLap, cd
+    global sw, current_lap, cd
     
     if state['screen'] == 'stopwatch':
         if sw.running:
-            sw.stopLapTimer("Lap %s" % currentLap)
-            currentLap = (currentLap + 1) % 3
+            sw.stopLapTimer("Lap %s" % current_lap)
+            current_lap = (current_lap + 1) % 3
         else:
             sw.reset()
     elif state['screen'] == 'countdown':
         cd.reset()
 
 def previous_screen():
-    global currentScreen
+    global current_screen
     
-    currentScreen = (currentScreen - 1) % len(screenList)
-    state['screen'] = screenList[currentScreen]
+    current_screen = (current_screen - 1) % len(screen_list)
+    state['screen'] = screen_list[current_screen]
     
 def next_screen():
-    global currentScreen
+    global current_screen
     
-    currentScreen = (currentScreen + 1) % len(screenList)
-    state['screen'] = screenList[currentScreen]
+    current_screen = (current_screen + 1) % len(screen_list)
+    state['screen'] = screen_list[current_screen]
 
-def showStopwatch():
+def show_stopwatch():
     global sw
     
     screen.fill(color=(26,26,26))
@@ -156,12 +156,12 @@ def showStopwatch():
     )
     
     if sw.running:
-        startStop = 'Stop'
+        start_stop = 'Stop'
     else:
-        startStop = 'Start'
+        start_stop = 'Start'
     
     screen.text(
-        startStop,
+        start_stop,
         xy=(10,17),
         align='left',
         color='white',
@@ -170,12 +170,12 @@ def showStopwatch():
     )
     
     if sw.running:
-        lapReset = 'Lap'
+        lap_reset = 'Lap'
     else:
-        lapReset = 'Reset'
+        lap_reset = 'Reset'
     
     screen.text(
-        lapReset,
+        lap_reset,
         xy=(310,17),
         align='right',
         color='white',
@@ -235,13 +235,13 @@ def showStopwatch():
     )
 
 @every(seconds=1)
-def timerDone():
+def timer_done():
     global cd
     
     if cd.done:
         state['text_visible'] = not state['text_visible']
 
-def showCountdown():
+def show_countdown():
     global cd
     
     screen.fill(color=(26,26,26))
@@ -263,12 +263,12 @@ def showCountdown():
     )
     
     if cd.running:
-        startStop = 'Stop'
+        start_stop = 'Stop'
     else:
-        startStop = 'Start'
+        start_stop = 'Start'
     
     screen.text(
-        startStop,
+        start_stop,
         xy=(10,17),
         align='left',
         color='white',
@@ -308,14 +308,14 @@ def showCountdown():
         )
         
         if line == 0:
-            lineText = "Seconds"
+            line_text = "Seconds"
         elif line == 1:
-            lineText = "Minutes"
+            line_text = "Minutes"
         elif line == 2:
-            lineText = "Hours"
+            line_text = "Hours"
             
         screen.text(
-            lineText,
+            line_text,
             xy=(25,row_y+27),
             align='left',
             color=(220,220,220),
@@ -363,8 +363,8 @@ def showCountdown():
 def loop():
     
     if state['screen'] == 'stopwatch':
-        showStopwatch()
+        show_stopwatch()
     elif state['screen'] == 'countdown':
-        showCountdown()
+        show_countdown()
 
 tingbot.run()
