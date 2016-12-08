@@ -1,0 +1,10 @@
+{
+    "feed_list":
+    [
+        { "name": "hot", "url": "https://www.reddit.com/hot/.json" },
+        { "name": "awww", "url": "https://www.reddit.com/r/awww/.json" },
+        { "name": "random", "url": "https://www.reddit.com/r/random/.json" },
+        { "name": "funny", "url": "https://www.reddit.com/r/funny/.json" },
+        { "name": "worldnews", "url": "https://www.reddit.com/r/worldnews/.json" }
+    ]
+}

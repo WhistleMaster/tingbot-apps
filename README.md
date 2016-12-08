@@ -67,6 +67,10 @@ No setup needed.
 
 No setup needed.
 
+## Reddit.tingapp
+
+No setup needed. You can change **default_settings.json** to add, modify and/or delete any feed.
+
 ## TPG.tingapp
 
 Create a **settings.json** with the following settings:
