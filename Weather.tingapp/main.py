@@ -1,7 +1,6 @@
 # coding: utf-8
-# v1.1.0
+# v1.1.1
 
-import socket
 import tingbot
 from tingbot import *
 import lib.pywapi
@@ -16,10 +15,11 @@ screen_list = {
 current_screen = 0
 state['screen'] = screen_list[current_screen]
 
-state['location'] = 'SZXX0013'
 state['kphToMph'] = 1.60934400061
 
 state['weather'] = None
+
+state['location'] = tingbot.app.settings['location']
 
 wind_code_mapper = {
     'N': u'#',
@@ -310,6 +310,5 @@ def loop():
     
     if state['screen'] == 'main':
         show_main()
- 
-socket.setdefaulttimeout(60)
+
 tingbot.run()
