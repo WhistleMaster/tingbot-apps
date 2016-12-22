@@ -92,7 +92,14 @@ No setup needed.
 
 ## Weather.tingapp
 
-No setup needed.
+Create a **settings.json** with the following settings:
+```
+{
+    "location":"SZXX0013"
+}
+```
+
+Location code can be obtained from [www.weather.com](www.weather.com)
 
 ## WiFi.tingapp
 
