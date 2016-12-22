@@ -99,7 +99,7 @@ Create a **settings.json** with the following settings:
 }
 ```
 
-Location code can be obtained from [www.weather.com](www.weather.com)
+Location code can be obtained from [weather.com](http://www.weather.com)
 
 ## WiFi.tingapp
 
