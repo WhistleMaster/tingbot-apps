@@ -1,5 +1,5 @@
 # coding: utf-8
-# v1.0.0
+# v1.0.1
 
 import tingbot
 from tingbot import *
@@ -81,7 +81,7 @@ def show_main():
         )
         
         if i == 2:
-            statText = state['stats'][stats_list[i]['json']] + "%"
+            statText = '%.2f%%' % state['stats'][stats_list[i]['json']]
         else:
             statText = state['stats'][stats_list[i]['json']]
         
